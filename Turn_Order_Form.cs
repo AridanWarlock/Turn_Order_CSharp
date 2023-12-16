@@ -16,8 +16,8 @@ namespace Turn_Order
         {
             InitializeComponent();
         }
-        readonly List<Fighter> fighters = new List<Fighter>();
-        readonly Fighters_comparer comparer = new Fighters_comparer();
+        readonly List<Fighter> fighters = [];
+        readonly Fighters_comparer comparer = new();
         int Current_fighter { get; set; } = 0;
         private void Next_button_Click(object sender, EventArgs e)
         {
@@ -30,7 +30,6 @@ namespace Turn_Order
             Current_label.Text = fighters[Current_fighter].Name;
             Conc_text.Visible = fighters[Current_fighter].Concentratoin;
         }
-
         private void Turn_Order_Form_Load(object sender, EventArgs e)
         {
             Fighter a = new Hero("Элли", 12, 31, 40);
@@ -79,7 +78,6 @@ namespace Turn_Order
                 MessageBox.Show("Некорректный ввод!", "Error!");
                 return;
             }
-
             Fighter added;
             try
             {
@@ -100,7 +98,7 @@ namespace Turn_Order
                         Convert.ToInt32(Add_max_health_text.Text));
                 }
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (Fighter_Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error!");
                 return;
@@ -154,7 +152,6 @@ namespace Turn_Order
                 }
             }
         }
-
         private void Init_change_button_Click(object sender, EventArgs e)
         {
             if (fighters.Count == 0)
@@ -167,7 +164,7 @@ namespace Turn_Order
                 MessageBox.Show("Герой не выбран!", "Error!");
                 return;
             }
-            fighters.Find(pred => pred.Name == Init_change_comboBox.Text).Initiative
+            fighters.Find(pred => pred.Name == Init_change_comboBox.Text)!.Initiative
                 = Convert.ToInt32(Init_change_text.Text);
             fighters.Sort(comparer);
             Display();
@@ -212,7 +209,7 @@ namespace Turn_Order
             if (fighters[index].Damage(Convert.ToInt32(Damage_text.Text)))
             {
                 Relocate(-27);
-                fighters.Remove(fighters.Find(pred => pred.Name == Damage_comboBox.Text));
+                fighters.Remove(fighters.Find(pred => pred.Name == Damage_comboBox.Text)!);
                 if (index <= Current_fighter)
                     Current_fighter--;
                 Init_change_comboBox.Items.Remove(Damage_comboBox.Text);

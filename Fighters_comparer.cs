@@ -8,8 +8,9 @@ namespace Turn_Order
 {
     internal class Fighters_comparer : IComparer<Fighter>
     {
-        public int Compare(Fighter x, Fighter y)
+        public int Compare(Fighter? x, Fighter? y)
         {
+            if (x == null || y == null) return 0;
             if (x.Initiative > y.Initiative)
                 return -1;
             if (x.Initiative < y.Initiative)

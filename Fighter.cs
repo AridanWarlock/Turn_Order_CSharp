@@ -8,7 +8,7 @@ namespace Turn_Order
 {
     abstract class Fighter
     {
-        public string actor;
+        public string? actor;
         public readonly string Name;
         private int _initiative;
         private int _health;
@@ -18,19 +18,21 @@ namespace Turn_Order
             get => _initiative;
             set => _initiative = value >= 0 && value <= 40
                 ? value
-                : throw new ArgumentOutOfRangeException("Инициатива в диапозоне: от 0 до 40!");
+                : throw new Fighter_Exception("Инициатива в диапозоне: от 0 до 40!");
         }
         public int Health
         {
             get => _health;
             set => _health = value > 0
                 ? value
-                : throw new ArgumentOutOfRangeException("Хиты больше 0!");
+                : throw new Fighter_Exception("Хиты больше 0!");
         }
         public int Max_health
         {
             get => _max_health;
-            init => _max_health = value;
+            init => _max_health = value > 0
+                ? value
+                : throw new Fighter_Exception("Макс Хиты больше 0!");
         }
         public bool Concentratoin { get; set; } = false;
         public Fighter(string name, int initiative, int health, int max_health)
@@ -43,12 +45,11 @@ namespace Turn_Order
         public override string ToString() => Name;
         public abstract bool Damage(int damage);
         public override int GetHashCode() => Name.GetHashCode();
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Fighter fighter) return Name == fighter.Name;
             return false;
         }
-
     }
 
     class Hero : Fighter
@@ -65,8 +66,6 @@ namespace Turn_Order
             }
             return false;
         }
-
-
     }
     class Villain : Fighter
     {

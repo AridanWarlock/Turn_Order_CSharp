@@ -12,10 +12,6 @@ namespace Turn_Order
 {
     public partial class Concentration : Form
     {
-        public Concentration()
-        {
-            InitializeComponent();
-        }
         public Concentration(Turn_Order_Form parent, int damage, string name)
         {
             InitializeComponent();
