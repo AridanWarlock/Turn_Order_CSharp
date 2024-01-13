@@ -25,7 +25,7 @@
                 return;
             }
             Current_fighter = (Current_fighter == fighters.Count - 1) ? (0) : (Current_fighter + 1);
-            Current_label.Text = fighters[Current_fighter]._name;
+            Current_label.Text = fighters[Current_fighter].Name;
             Conc_text.Visible = fighters[Current_fighter].Concentration;
         }
         private void Turn_Order_Form_Load(object sender, EventArgs e)
@@ -36,15 +36,15 @@
             fighters.Add(b);
 
             fighters.Sort();
-            Current_label.Text = fighters[0]._name;
+            Current_label.Text = fighters[0].Name;
 
-            Delete_comboBox.Items.Add(fighters[0]._name);
-            Init_change_comboBox.Items.Add(fighters[0]._name);
-            Damage_comboBox.Items.Add(fighters[0]._name);
+            Delete_comboBox.Items.Add(fighters[0].Name);
+            Init_change_comboBox.Items.Add(fighters[0].Name);
+            Damage_comboBox.Items.Add(fighters[0].Name);
 
-            Delete_comboBox.Items.Add(fighters[1]._name);
-            Init_change_comboBox.Items.Add(fighters[1]._name);
-            Damage_comboBox.Items.Add(fighters[1]._name);
+            Delete_comboBox.Items.Add(fighters[1].Name);
+            Init_change_comboBox.Items.Add(fighters[1].Name);
+            Damage_comboBox.Items.Add(fighters[1].Name);
 
             Display();
         }
@@ -55,7 +55,7 @@
             Health_text.Clear();
             for (int i = 0; i < fighters.Count; i++)
             {
-                Name_text.Text += fighters[i]._name + Environment.NewLine;
+                Name_text.Text += fighters[i].Name + Environment.NewLine;
                 Init_text.Text += fighters[i].Initiative + Environment.NewLine;
                 Health_text.Text += fighters[i].Health + " \\ " + fighters[i].Max_health + Environment.NewLine;
             }
@@ -117,15 +117,15 @@
                 Current_fighter++;
 
             fighters.Sort();
-            Delete_comboBox.Items.Add(added._name);
-            Init_change_comboBox.Items.Add(added._name);
-            Damage_comboBox.Items.Add(added._name);
+            Delete_comboBox.Items.Add(added.Name);
+            Init_change_comboBox.Items.Add(added.Name);
+            Damage_comboBox.Items.Add(added.Name);
             Display();
             Relocate(27);
         }
         public void Concentration_check(string name, bool check)
         {
-            int index = fighters.FindIndex(pred => pred._name == name);
+            int index = fighters.FindIndex(pred => pred.Name == name);
             fighters[index].Concentration = check;
             if (index == Current_fighter)
             {
@@ -163,7 +163,7 @@
                 MessageBox.Show("Герой не выбран!", "Error!");
                 return;
             }
-            fighters.Find(pred => pred._name == Init_change_comboBox.Text)!.Initiative
+            fighters.Find(pred => pred.Name == Init_change_comboBox.Text)!.Initiative
                 = Convert.ToInt32(Init_change_text.Text);
             fighters.Sort();
             Display();
@@ -182,7 +182,7 @@
                 return;
             }
             Relocate(-27);
-            int index = fighters.FindIndex(pred => pred._name == Delete_comboBox.Text);
+            int index = fighters.FindIndex(pred => pred.Name == Delete_comboBox.Text);
             fighters.RemoveAt(index);
             if (index <= Current_fighter)
                 Current_fighter--;
@@ -199,7 +199,7 @@
                 MessageBox.Show("Список пуст!", "Error!");
                 return;
             }
-            int index = fighters.FindIndex(pred => pred._name == Damage_comboBox.Text);
+            int index = fighters.FindIndex(pred => pred.Name == Damage_comboBox.Text);
             if (index < 0)
             {
                 MessageBox.Show("Герой не выбран!", "Error!");
@@ -208,7 +208,7 @@
             if (fighters[index].Damage(Convert.ToInt32(Damage_text.Text)))
             {
                 Relocate(-27);
-                fighters.Remove(fighters.Find(pred => pred._name == Damage_comboBox.Text)!);
+                fighters.Remove(fighters.Find(pred => pred.Name == Damage_comboBox.Text)!);
                 if (index <= Current_fighter)
                     Current_fighter--;
                 Init_change_comboBox.Items.Remove(Damage_comboBox.Text);
@@ -219,7 +219,7 @@
             else if (Convert.ToInt32(Damage_text.Text) > 0 && fighters[index].Concentration)
             {
                 int damage_check = (Convert.ToInt32(Damage_text.Text) > 20) ? (Convert.ToInt32(Damage_text.Text) / 2) : 10;
-                Concentration save = new(this, damage_check, fighters[index]._name);
+                Concentration save = new(this, damage_check, fighters[index].Name);
                 save.Show();
             }
             Display();

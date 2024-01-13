@@ -1,21 +1,27 @@
-﻿namespace Turn_Order
+﻿using System.Xml.Linq;
+
+namespace Turn_Order
 {
     internal abstract class Fighter : IComparable 
     {
-        private readonly string _name;
         private int _initiative;
         private int _health;
         private int _max_health;
+        private string? _name;
         public Fighter(string name, int initiative, int health, int max_health)
         {
-            if (!name.All(char.IsLetterOrDigit))
-                throw new Fighter_Exception("Имя должно состоять только из букв и цифр!");
-            _name = name;
+            Name = name;
             Initiative = initiative;
             Health = health;
             Max_health = max_health;
         }
-
+        public string Name 
+        {
+            get => _name!;
+            init => _name = value.All(char.IsLetterOrDigit)
+                ? value
+                : throw new Fighter_Exception("Имя должно состоять только из букв и цифр!");
+        }
         public int Initiative
         {
             get => _initiative;
@@ -26,9 +32,7 @@
         public int Health
         {
             get => _health;
-            protected set => _health = value > 0
-                ? value
-                : throw new Fighter_Exception("Хиты больше 0!");
+            protected set => _health = value;
         }
         public int Max_health
         {
@@ -41,11 +45,11 @@
         public bool Concentration { get; set; } = false;
 
         public abstract bool Damage(int damage);
-        public override string ToString() => _name;
-        public override int GetHashCode() => _name.GetHashCode();
+        public override string ToString() => Name;
+        public override int GetHashCode() => Name.GetHashCode();
         public override bool Equals(object? obj)
         {
-            if (obj is Fighter fighter) return _name == fighter._name;
+            if (obj is Fighter fighter) return Name == fighter.Name;
             return false;
         }
         public int CompareTo(object? obj)
