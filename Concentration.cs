@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace Turn_Order
+﻿namespace Turn_Order
 {
     public partial class Concentration : Form
     {
@@ -19,7 +9,7 @@ namespace Turn_Order
             Dc_text.Text = damage.ToString();
             Hero_name_text.Text = name;
         }
-        private Turn_Order_Form _Parent;
+        private readonly Turn_Order_Form _Parent;
         private void Yes_button_Click(object sender, EventArgs e)
         {
             _Parent.Concentration_check(Hero_name_text.Text, true);

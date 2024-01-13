@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Turn_Order
+﻿namespace Turn_Order
 {
-    abstract class Fighter
+    internal abstract class Fighter : IComparable 
     {
         public string? actor;
         public readonly string Name;
@@ -23,7 +17,7 @@ namespace Turn_Order
         public int Health
         {
             get => _health;
-            set => _health = value > 0
+            protected set => _health = value > 0
                 ? value
                 : throw new Fighter_Exception("Хиты больше 0!");
         }
@@ -34,7 +28,7 @@ namespace Turn_Order
                 ? value
                 : throw new Fighter_Exception("Макс Хиты больше 0!");
         }
-        public bool Concentratoin { get; set; } = false;
+        public bool Concentration { get; set; } = false;
         public Fighter(string name, int initiative, int health, int max_health)
         {
             Name = name;
@@ -50,9 +44,21 @@ namespace Turn_Order
             if (obj is Fighter fighter) return Name == fighter.Name;
             return false;
         }
+
+        public int CompareTo(object? obj)
+        {
+            if (obj is Fighter fighter)
+                if (Initiative > fighter.Initiative)
+                    return -1;
+                else if (Initiative < fighter.Initiative)
+                    return 1;
+                else if (actor != fighter.actor && actor == "Hero")
+                    return -1;
+            return 0;
+        }
     }
 
-    class Hero : Fighter
+    internal class Hero : Fighter
     {
         public Hero(string name, int initiative, int health, int max_health)
             : base(name, initiative, health, max_health) { actor = "Hero"; }
@@ -62,12 +68,13 @@ namespace Turn_Order
             Health = (Health - damage > Max_health) ? (Max_health) : (Health - damage);
             if (Health <= 0)
             {
-                Concentratoin = false;
+                Concentration = false;
             }
             return false;
         }
     }
-    class Villain : Fighter
+
+    internal class Villain : Fighter
     {
         public Villain(string name, int initiative, int health, int max_health)
             : base(name, initiative, health, max_health) { actor = "Villain"; }

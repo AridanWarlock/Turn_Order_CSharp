@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace Turn_Order
+﻿namespace Turn_Order
 {
     public partial class Turn_Order_Form : Form
     {
@@ -16,9 +6,17 @@ namespace Turn_Order
         {
             InitializeComponent();
         }
-        readonly List<Fighter> fighters = [];
-        readonly Fighters_comparer comparer = new();
-        int Current_fighter { get; set; } = 0;
+
+        private readonly List<Fighter> fighters = [];
+        private int _current_fighter = 0;
+
+        private int Current_fighter 
+        {
+            get => _current_fighter;
+            set => _current_fighter = (fighters.Count == 0)
+                ? -1
+                : value;
+        }
         private void Next_button_Click(object sender, EventArgs e)
         {
             if (fighters.Count == 0)
@@ -28,7 +26,7 @@ namespace Turn_Order
             }
             Current_fighter = (Current_fighter == fighters.Count - 1) ? (0) : (Current_fighter + 1);
             Current_label.Text = fighters[Current_fighter].Name;
-            Conc_text.Visible = fighters[Current_fighter].Concentratoin;
+            Conc_text.Visible = fighters[Current_fighter].Concentration;
         }
         private void Turn_Order_Form_Load(object sender, EventArgs e)
         {
@@ -37,7 +35,7 @@ namespace Turn_Order
             fighters.Add(a);
             fighters.Add(b);
 
-            fighters.Sort(comparer);
+            fighters.Sort();
             Current_label.Text = fighters[0].Name;
 
             Delete_comboBox.Items.Add(fighters[0].Name);
@@ -71,9 +69,10 @@ namespace Turn_Order
                 MessageBox.Show("Введите данные!", "Warning!");
                 return;
             }
-            if (!(int.TryParse(Add_init_text.Text, out int check)
-                && (int.TryParse(Add_health_text.Text, out check) &&
-                (int.TryParse(Add_max_health_text.Text, out check)))))
+
+            if (!(int.TryParse(Add_init_text.Text, out _)
+                && int.TryParse(Add_health_text.Text, out _) &&
+                int.TryParse(Add_max_health_text.Text, out _)))
             {
                 MessageBox.Show("Некорректный ввод!", "Error!");
                 return;
@@ -117,7 +116,7 @@ namespace Turn_Order
             if (added.Initiative > fighters[Current_fighter].Initiative)
                 Current_fighter++;
 
-            fighters.Sort(comparer);
+            fighters.Sort();
             Delete_comboBox.Items.Add(added.Name);
             Init_change_comboBox.Items.Add(added.Name);
             Damage_comboBox.Items.Add(added.Name);
@@ -127,7 +126,7 @@ namespace Turn_Order
         public void Concentration_check(string name, bool check)
         {
             int index = fighters.FindIndex(pred => pred.Name == name);
-            fighters[index].Concentratoin = check;
+            fighters[index].Concentration = check;
             if (index == Current_fighter)
             {
                 Conc_text.Visible = check;
@@ -166,7 +165,7 @@ namespace Turn_Order
             }
             fighters.Find(pred => pred.Name == Init_change_comboBox.Text)!.Initiative
                 = Convert.ToInt32(Init_change_text.Text);
-            fighters.Sort(comparer);
+            fighters.Sort();
             Display();
         }
 
@@ -217,10 +216,10 @@ namespace Turn_Order
                 Damage_comboBox.Items.Remove(Damage_comboBox.Text);
                 Display();
             }
-            else if (Convert.ToInt32(Damage_text.Text) > 0 && fighters[index].Concentratoin)
+            else if (Convert.ToInt32(Damage_text.Text) > 0 && fighters[index].Concentration)
             {
                 int damage_check = (Convert.ToInt32(Damage_text.Text) > 20) ? (Convert.ToInt32(Damage_text.Text) / 2) : 10;
-                Concentration save = new Concentration(this, damage_check, fighters[index].Name);
+                Concentration save = new(this, damage_check, fighters[index].Name);
                 save.Show();
             }
             Display();
@@ -228,8 +227,13 @@ namespace Turn_Order
 
         private void Conc_button_Click(object sender, EventArgs e)
         {
-            fighters[Current_fighter].Concentratoin = !fighters[Current_fighter].Concentratoin;
-            Conc_text.Visible = fighters[Current_fighter].Concentratoin;
+            if (fighters.Count == 0)
+            {
+                MessageBox.Show("Список пуст","Error!");
+                return;
+            }
+            fighters[Current_fighter].Concentration = !fighters[Current_fighter].Concentration;
+            Conc_text.Visible = fighters[Current_fighter].Concentration;
         }
     }
 }
