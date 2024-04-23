@@ -2,54 +2,61 @@
 
 namespace Turn_Order
 {
-    internal abstract class Fighter : IComparable 
+    internal class Fighter : IComparable 
     {
         private int _initiative;
-        private int _health;
-        private int _max_health;
+        private int _maxHealth;
         private string? _name;
-        public Fighter(string name, int initiative, int health, int max_health)
+        private Actor _actor;
+        public Fighter(string name, int initiative, int health, int maxHealth, Actor actor)
         {
             Name = name;
             Initiative = initiative;
             Health = health;
-            Max_health = max_health;
+            MaxHealth = maxHealth;
+
+            _actor = actor;
         }
         public string Name 
         {
             get => _name!;
             init => _name = value.All(char.IsLetterOrDigit)
                 ? value
-                : throw new Fighter_Exception("Имя должно состоять только из букв и цифр!");
+                : throw new FighterException("Имя должно состоять только из букв и цифр!");
         }
         public int Initiative
         {
             get => _initiative;
-            set => _initiative = value >= 0 && value <= 40
+            set => _initiative = value <= 40
                 ? value
-                : throw new Fighter_Exception("Инициатива в диапозоне: от 0 до 40!");
+                : throw new FighterException("Инициатива меньше 40!");
         }
-        public int Health
+        public int Health { get; private set;}
+        public int MaxHealth
         {
-            get => _health;
-            protected set => _health = value;
-        }
-        public int Max_health
-        {
-            get => _max_health;
-            init => _max_health = value > 0
+            get => _maxHealth;
+            init => _maxHealth = value >= 0
                 ? value
-                : throw new Fighter_Exception("Макс Хиты больше 0!");
+                : throw new FighterException("Макс Хиты не отрицательны!");
         }
-        protected string? Actor { get; init; }
         public bool Concentration { get; set; } = false;
+        public void Damage(int damage)
+        {
+            Health = (Health - damage > MaxHealth) ? (MaxHealth) : (Health - damage);
 
-        public abstract bool Damage(int damage);
+            if (Health <= 0)
+                Concentration = false;
+        }
+        public bool IsDead
+        {
+            get => Health <= 0 && _actor == Actor.Villain;
+        }
         public override string ToString() => Name;
         public override int GetHashCode() => Name.GetHashCode();
         public override bool Equals(object? obj)
         {
-            if (obj is Fighter fighter) return Name == fighter.Name;
+            if (obj is Fighter fighter) 
+                return Name == fighter.Name;
             return false;
         }
         public int CompareTo(object? obj)
@@ -59,39 +66,18 @@ namespace Turn_Order
                     return -1;
                 else if (Initiative < fighter.Initiative)
                     return 1;
-                else if (Actor != fighter.Actor && Actor == "Hero")
-                    return -1;
+                else if (_actor != fighter._actor)
+                    if (_actor == Actor.Hero)
+                        return -1;
+                    else
+                        return Name.CompareTo(fighter.Name);
             return 0;
         }
     }
 
-    internal class Hero : Fighter
+    enum Actor
     {
-        public Hero(string name, int initiative, int health, int max_health)
-            : base(name, initiative, health, max_health) { Actor = "Hero"; }
-
-        public override bool Damage(int damage)
-        {
-            Health = (Health - damage > Max_health) ? (Max_health) : (Health - damage);
-            if (Health <= 0)
-            {
-                Concentration = false;
-            }
-            return false;
-        }
-    }
-
-    internal class Villain : Fighter
-    {
-        public Villain(string name, int initiative, int health, int max_health)
-            : base(name, initiative, health, max_health) { Actor = "Villain"; }
-
-        public override bool Damage(int damage)
-        {
-            Health = (Health - damage > Max_health) ? (Max_health) : (Health - damage);
-            if (Health <= 0)
-                return true;
-            return false;
-        }
+        Hero,
+        Villain
     }
 }

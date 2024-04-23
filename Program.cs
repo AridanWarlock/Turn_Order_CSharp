@@ -10,7 +10,7 @@
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Turn_Order_Form());
+            Application.Run(new TurnOrderForm());
         }
     }
 }

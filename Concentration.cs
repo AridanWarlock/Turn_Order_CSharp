@@ -1,24 +1,31 @@
 ﻿namespace Turn_Order
 {
-    public partial class Concentration : Form
+    internal partial class Concentration : Form
     {
-        public Concentration(Turn_Order_Form parent, int damage, string name)
+        public Concentration(TurnOrderForm parent, Fighter fighter, int damage)
         {
             InitializeComponent();
-            _Parent = parent;
-            Dc_text.Text = damage.ToString();
-            Hero_name_text.Text = name;
+
+            _parent = parent;
+            _fighter = fighter;
+
+            heroNameText.Text = _fighter.Name;
+
+            damage = damage > 20 ? damage / 2 : 10;
+            dcText.Text = damage.ToString();
         }
-        private readonly Turn_Order_Form _Parent;
+        private readonly TurnOrderForm _parent;
+        private Fighter _fighter;
         private void Yes_button_Click(object sender, EventArgs e)
         {
-            _Parent.Concentration_check(Hero_name_text.Text, true);
+            _parent.ConcentrationCheck(_fighter, true);
+            //_parent.concentraionText.Visible = _fighter.Concentration;
             Close();
         }
 
         private void No_button_Click(object sender, EventArgs e)
         {
-            _Parent.Concentration_check(Hero_name_text.Text, false);
+            _parent.ConcentrationCheck(_fighter, false);
             Close();
         }
     }

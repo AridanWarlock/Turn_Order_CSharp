@@ -9,9 +9,9 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.Yes_button = new System.Windows.Forms.Button();
             this.No_button = new System.Windows.Forms.Button();
-            this.Dc_text = new System.Windows.Forms.Label();
+            this.dcText = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.Hero_name_text = new System.Windows.Forms.Label();
+            this.heroNameText = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -56,13 +56,13 @@
             // 
             // Dc_text
             // 
-            this.Dc_text.AutoSize = true;
-            this.Dc_text.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Dc_text.Location = new System.Drawing.Point(219, 63);
-            this.Dc_text.Name = "Dc_text";
-            this.Dc_text.Size = new System.Drawing.Size(93, 25);
-            this.Dc_text.TabIndex = 10;
-            this.Dc_text.Text = "Number";
+            this.dcText.AutoSize = true;
+            this.dcText.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.dcText.Location = new System.Drawing.Point(219, 63);
+            this.dcText.Name = "Dc_text";
+            this.dcText.Size = new System.Drawing.Size(93, 25);
+            this.dcText.TabIndex = 10;
+            this.dcText.Text = "Number";
             // 
             // label2
             // 
@@ -76,13 +76,13 @@
             // 
             // Hero_name_text
             // 
-            this.Hero_name_text.AutoSize = true;
-            this.Hero_name_text.Font = new System.Drawing.Font("Monotype Corsiva", 21.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Hero_name_text.Location = new System.Drawing.Point(196, 158);
-            this.Hero_name_text.Name = "Hero_name_text";
-            this.Hero_name_text.Size = new System.Drawing.Size(79, 36);
-            this.Hero_name_text.TabIndex = 8;
-            this.Hero_name_text.Text = "Name";
+            this.heroNameText.AutoSize = true;
+            this.heroNameText.Font = new System.Drawing.Font("Monotype Corsiva", 21.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.heroNameText.Location = new System.Drawing.Point(196, 158);
+            this.heroNameText.Name = "Hero_name_text";
+            this.heroNameText.Size = new System.Drawing.Size(79, 36);
+            this.heroNameText.TabIndex = 8;
+            this.heroNameText.Text = "Name";
             // 
             // label1
             // 
@@ -99,9 +99,9 @@
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(484, 461);
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Controls.Add(this.Dc_text);
+            this.Controls.Add(this.dcText);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.Hero_name_text);
+            this.Controls.Add(this.heroNameText);
             this.Controls.Add(this.label1);
             this.Name = "Concentration";
             this.Text = "Concentration";
@@ -122,9 +122,9 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Button Yes_button;
         private System.Windows.Forms.Button No_button;
-        private System.Windows.Forms.Label Dc_text;
+        private System.Windows.Forms.Label dcText;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label Hero_name_text;
+        private System.Windows.Forms.Label heroNameText;
         private System.Windows.Forms.Label label1;
     }
 }
