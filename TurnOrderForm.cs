@@ -9,14 +9,17 @@ namespace TurnOrder
         {
             InitializeComponent();
         }
-        private PriorityQueue<Fighter, Fighter> _queueOfTurns = new();
-        private SortedDictionary<string, Fighter> _dictOfFighters = [];
+        private readonly PriorityQueue<IFighter, IFighter> _queueOfTurns = new();
+        private readonly SortedDictionary<string, IFighter> _dictOfFighters = [];
 
-        private Fighter? _currentFighter;
+        private IFighter? _currentFighter;
         private void Turn_Order_Form_Load(object sender, EventArgs e)
         {
-            Fighter elly = new("Элли", 12, 31, 40, Actor.Hero);
-            Fighter walt = new("Вальт", 17, 50, 60, Actor.Hero);
+            TopMost = true;
+            WindowState = FormWindowState.Maximized;
+
+            var elly = new Hero("Элли", 12, 31, 40);
+            var walt = new Hero("Вальт", 17, 50, 60);
 
             _dictOfFighters.Add(elly.Name, elly);
             _dictOfFighters.Add(walt.Name, walt);
@@ -68,27 +71,33 @@ namespace TurnOrder
         }
         private void Add_button_Click(object sender, EventArgs e)
         {
-            Fighter added;
+            IFighter added;
             try
             {
                 if (!(int.TryParse(addInitText.Text, out int init)
                     && int.TryParse(addHealthText.Text, out int health) &&
-                    int.TryParse(addMaxHealthText.Text, out  int maxHealth)))
+                    int.TryParse(addMaxHealthText.Text, out int maxHealth)))
                 {
                     MessageBox.Show("Некорректный ввод!", "Error!");
                     return;
                 }
 
-                Actor actor = heroCheck.Checked 
-                    ? Actor.Hero 
-                    : Actor.Villain;
-
-                added = new Fighter(
-                    addNameText.Text,
-                    init,
-                    health,
-                    maxHealth,
-                    actor);
+                if (heroCheck.Checked)
+                {
+                    added = new Hero(
+                        addNameText.Text,
+                        init,
+                        health,
+                        maxHealth);
+                }
+                else
+                { 
+                    added = new Villain(
+                        addNameText.Text,
+                        init,
+                        health,
+                        maxHealth);
+                }
             }
             catch (FighterException ex)
             {
@@ -108,7 +117,7 @@ namespace TurnOrder
             Relocate(27);
             Display();
         }
-        public void ConcentrationCheck(Fighter concFighter, bool check)
+        public void ConcentrationCheck(IFighter concFighter, bool check)
         {
             concFighter.Concentration = check;
 
@@ -136,7 +145,7 @@ namespace TurnOrder
         }
         private void Init_change_button_Click(object sender, EventArgs e)
         {
-            if (initChangeComboBox.SelectedItem is Fighter fighter 
+            if (initChangeComboBox.SelectedItem is IFighter fighter 
                     && int.TryParse(initChangeText.Text, out var init))
             {
                 fighter.Initiative = init;
@@ -145,7 +154,7 @@ namespace TurnOrder
         }
         private void Delete_button_Click(object sender, EventArgs e)
         {
-            if (deleteComboBox.SelectedItem is Fighter fighter)
+            if (deleteComboBox.SelectedItem is IFighter fighter)
             {
                 _dictOfFighters.Remove(fighter.Name);
 
@@ -162,7 +171,7 @@ namespace TurnOrder
         }
         private void Damage_button_Click(object sender, EventArgs e)
         {
-            if (damageComboBox.SelectedItem is Fighter fighter &&
+            if (damageComboBox.SelectedItem is IFighter fighter &&
                 int.TryParse(damageText.Text, out int damage))
             {
                 fighter.Damage(damage);
@@ -182,7 +191,7 @@ namespace TurnOrder
                 }
                 else if (fighter.Concentration && damage > 0)
                 {
-                    Concentration save = new(this, fighter, damage);
+                    var save = new Concentration(this, fighter, damage);
                     save.Show();
                 }
                 else if (fighter.IsKnocked && fighter.Equals(_currentFighter))

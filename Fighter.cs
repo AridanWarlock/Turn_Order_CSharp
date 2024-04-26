@@ -2,26 +2,41 @@
 
 namespace TurnOrder
 {
-    internal class Fighter : IComparable 
+    internal interface IFighter : IComparable<IFighter>
+    {
+        string Name { get; }
+        int Initiative { get; set; }
+        int Health {  get; }
+        int MaxHealth {  get; }
+        bool Concentration { get; set;}
+        void Damage(int damage);
+        bool IsDead { get; }
+        bool IsKnocked { get; }
+    }
+    //internal class FighterComparer : IComparer<IFighter>
+    //{
+    //    public int Compare(IFighter? x, IFighter? y)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
+    abstract class Fighter : IFighter
     {
         private int _initiative;
         private readonly int _maxHealth;
         private readonly string? _name;
-        private readonly Actor _actor;
-        public Fighter(string? name, int initiative, int health, int maxHealth, Actor actor)
+        public Fighter(string? name, int initiative, int health, int maxHealth)
         {
             Name = name!;
             Initiative = initiative;
             Health = health;
             MaxHealth = maxHealth;
-
-            _actor = actor;
         }
-        public string Name 
+        public string Name
         {
             get => _name!;
             init
-            { 
+            {
                 value = value.TrimStart().TrimEnd();
                 if (value is null || !value.All(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c)))
                 {
@@ -37,17 +52,17 @@ namespace TurnOrder
             get => _initiative;
             set => _initiative = value <= 40 ? value : 40;
         }
-        public int Health { get; private set;}
+        public int Health { get; private set; }
         public int MaxHealth
         {
             get => _maxHealth;
-            init => _maxHealth = value >= 0 ? value: 0;
+            init => _maxHealth = value >= 0 ? value : 0;
         }
         public bool Concentration { get; set; } = false;
         public void Damage(int damage)
         {
-            Health = (Health - damage > MaxHealth) 
-                ? (MaxHealth) 
+            Health = (Health - damage > MaxHealth)
+                ? (MaxHealth)
                 : (Health - damage);
 
             if (Health <= 0)
@@ -60,40 +75,51 @@ namespace TurnOrder
         {
             get => Health == 0;
         }
-        public bool IsDead
-        {
-            get => Health == 0 && _actor == Actor.Villain;
-        }
-        public override string ToString() => Name;
-        public override int GetHashCode() => Name.GetHashCode();
+        public abstract bool IsDead { get; }
         public override bool Equals(object? obj)
         {
-            if (obj is Fighter fighter) 
+            if (obj is IFighter fighter)
                 return Name == fighter.Name;
             return false;
         }
-        public int CompareTo(object? obj)
+        public override int GetHashCode() => Name.GetHashCode();
+        public abstract int CompareTo(IFighter? other);
+        public override string ToString() => Name;
+    }
+    internal class Hero : Fighter
+    {
+        public Hero(string? name, int initiative, int health, int maxHealth) 
+            : base(name, initiative, health, maxHealth) { }
+        public override bool IsDead { get => false; }
+        public override int CompareTo(IFighter? other)
         {
-            if (obj is Fighter fighter)
-            {
-                if (Initiative > fighter.Initiative)
-                    return -1;
-                else if (Initiative < fighter.Initiative)
-                    return 1;
+            ArgumentNullException.ThrowIfNull(other);
 
-                if (_actor == Actor.Hero && fighter._actor == Actor.Villain)
-                    return -1;
-                else if (_actor == Actor.Villain && fighter._actor == Actor.Hero)
-                    return 1;
+            if (Initiative != other.Initiative)
+                return other.Initiative - Initiative;
 
-                return Name.CompareTo(fighter.Name);
-            }
-            return 1;
+            if (other is Villain)
+                return -1;
+
+            return Name.CompareTo(other.Name);
         }
     }
-    enum Actor
+    internal class Villain : Fighter
     {
-        Hero,
-        Villain
+        public Villain(string? name, int initiative, int health, int maxHealth)
+            : base(name, initiative, health, maxHealth) { }
+        public override bool IsDead { get => Health == 0; }
+        public override int CompareTo(IFighter? other)
+        {
+            ArgumentNullException.ThrowIfNull(other);
+
+            if (Initiative != other.Initiative)
+                return other.Initiative - Initiative;
+
+            if (other is Hero)
+                return 1;
+
+            return Name.CompareTo(other.Name);
+        }
     }
 }
