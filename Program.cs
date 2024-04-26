@@ -1,4 +1,4 @@
-﻿namespace Turn_Order
+﻿namespace TurnOrder
 {
     internal static class Program
     {

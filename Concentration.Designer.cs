@@ -1,4 +1,4 @@
-﻿namespace Turn_Order
+﻿namespace TurnOrder
 {
     partial class Concentration
     {

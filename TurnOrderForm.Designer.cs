@@ -1,4 +1,4 @@
-﻿namespace Turn_Order
+﻿namespace TurnOrder
 {
     partial class TurnOrderForm
     {
@@ -95,7 +95,7 @@
             concentraionText.BackColor = SystemColors.GradientInactiveCaption;
             concentraionText.Font = new Font("Noto Serif Cond", 18F, FontStyle.Bold);
             concentraionText.ForeColor = SystemColors.ControlText;
-            concentraionText.Location = new Point(585, 362);
+            concentraionText.Location = new Point(584, 362);
             concentraionText.Margin = new Padding(4, 0, 4, 0);
             concentraionText.Name = "concentraionText";
             concentraionText.Size = new Size(216, 33);
