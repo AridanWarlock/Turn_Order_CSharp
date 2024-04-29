@@ -2,7 +2,7 @@
 
 namespace TurnOrder
 {
-    internal interface IFighter : IComparable<IFighter>
+    interface IFighter : IComparable<IFighter>
     {
         string Name { get; }
         int Initiative { get; set; }
@@ -13,31 +13,25 @@ namespace TurnOrder
         bool IsDead { get; }
         bool IsKnocked { get; }
     }
-    //internal class FighterComparer : IComparer<IFighter>
-    //{
-    //    public int Compare(IFighter? x, IFighter? y)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
     abstract class Fighter : IFighter
     {
         private int _initiative;
+        private int _health;
         private readonly int _maxHealth;
         private readonly string? _name;
         public Fighter(string? name, int initiative, int health, int maxHealth)
         {
             Name = name!;
             Initiative = initiative;
-            Health = health;
             MaxHealth = maxHealth;
+            Health = health;
         }
         public string Name
         {
             get => _name!;
             init
             {
-                value = value.TrimStart().TrimEnd();
+                value = value.Trim();
                 if (value is null || !value.All(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c)))
                 {
                     _name = "Default";
@@ -52,7 +46,14 @@ namespace TurnOrder
             get => _initiative;
             set => _initiative = value <= 40 ? value : 40;
         }
-        public int Health { get; private set; }
+        public int Health 
+        {
+            get => _health;
+            private set => _health = 
+                value > _maxHealth ? _maxHealth
+                : value < 0 ? 0
+                : value;
+        }
         public int MaxHealth
         {
             get => _maxHealth;
@@ -61,11 +62,9 @@ namespace TurnOrder
         public bool Concentration { get; set; } = false;
         public void Damage(int damage)
         {
-            Health = (Health - damage > MaxHealth)
-                ? (MaxHealth)
-                : (Health - damage);
+            Health -= damage;
 
-            if (Health <= 0)
+            if (Health == 0)
             {
                 Health = 0;
                 Concentration = false;
@@ -86,7 +85,7 @@ namespace TurnOrder
         public abstract int CompareTo(IFighter? other);
         public override string ToString() => Name;
     }
-    internal class Hero : Fighter
+    class Hero : Fighter
     {
         public Hero(string? name, int initiative, int health, int maxHealth) 
             : base(name, initiative, health, maxHealth) { }
@@ -104,7 +103,7 @@ namespace TurnOrder
             return Name.CompareTo(other.Name);
         }
     }
-    internal class Villain : Fighter
+    class Villain : Fighter
     {
         public Villain(string? name, int initiative, int health, int maxHealth)
             : base(name, initiative, health, maxHealth) { }

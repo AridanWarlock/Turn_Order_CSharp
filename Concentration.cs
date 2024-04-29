@@ -31,7 +31,7 @@
 
         private void Concentration_Load(object sender, EventArgs e)
         {
-            TopMost = true;
+            //TopMost = true;
             CenterToScreen();
         }
     }

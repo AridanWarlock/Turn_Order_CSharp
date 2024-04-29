@@ -15,7 +15,7 @@ namespace TurnOrder
         private IFighter? _currentFighter;
         private void Turn_Order_Form_Load(object sender, EventArgs e)
         {
-            TopMost = true;
+            //TopMost = true;
             WindowState = FormWindowState.Maximized;
 
             var elly = new Hero("Элли", 12, 31, 40);
@@ -37,7 +37,10 @@ namespace TurnOrder
         private void Next_button_Click(object sender, EventArgs e)
         {
             if (_dictOfFighters.Count == 0)
+            {
+                _queueOfTurns.Clear();
                 return;
+            }
 
             if (_queueOfTurns.Count == 0)
             {
