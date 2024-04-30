@@ -2,7 +2,7 @@
 {
     internal partial class Concentration : Form
     {
-        public Concentration(TurnOrderForm parent, IFighter fighter, int damage)
+        public Concentration(TurnOrderForm parent, Fighter fighter, int damage)
         {
             InitializeComponent();
 
@@ -15,7 +15,7 @@
             dcText.Text = damage.ToString();
         }
         private readonly TurnOrderForm _parent;
-        private IFighter _fighter;
+        private Fighter _fighter;
         private void Yes_button_Click(object sender, EventArgs e)
         {
             _parent.ConcentrationCheck(_fighter, true);
