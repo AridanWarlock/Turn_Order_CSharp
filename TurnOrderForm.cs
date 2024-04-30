@@ -10,14 +10,18 @@ namespace TurnOrder
             InitializeComponent();
         }
         private readonly Army army = new();
+        private readonly FighterObservable fighterObservable = new();
         private void Turn_Order_Form_Load(object sender, EventArgs e)
         {
             WindowState = FormWindowState.Maximized;
 
-            army.RegisterObserver(deleteComboBox);
-            army.RegisterObserver(initChangeComboBox);
-            army.RegisterObserver(damageComboBox);
-            army.RegisterObserver(this);
+            Fighter.ArmyObservable = fighterObservable;
+
+            fighterObservable.RegisterObserver(deleteComboBox);
+            fighterObservable.RegisterObserver(initChangeComboBox);
+            fighterObservable.RegisterObserver(damageComboBox);
+            fighterObservable.RegisterObserver(army);
+            fighterObservable.RegisterObserver(this);
 
             var elly = new Hero("Элли", 12, 31, 40);
             var walt = new Hero("Вальт", 17, 50, 60);

@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
 
 namespace TurnOrder
 {
@@ -8,7 +9,20 @@ namespace TurnOrder
         private int _health;
         private readonly int _maxHealth;
         private readonly string? _name;
-        public Army? Army { get; set; }
+        private Army? _army;
+        public Army? Army 
+        {
+            get => _army; 
+            set
+            {
+                if (value  is not null)
+                {
+                    _army = value;
+                    NotifyArmy(FighterCondition.Add);
+                }
+            }
+        }
+        public static FighterObservable? ArmyObservable;
         public Fighter(string? name, int initiative, int health, int maxHealth)
         {
             Name = name!;
@@ -18,7 +32,7 @@ namespace TurnOrder
         }
         public void NotifyArmy(FighterCondition condition)
         {
-            Army?.NotifyObservers(this, condition);
+            ArmyObservable?.NotifyObservers(this, condition);
         }
         public string Name
         {
@@ -41,7 +55,7 @@ namespace TurnOrder
             set
             {
                 _initiative = value <= 40 ? value : 40;
-                Army?.NotifyObservers(this, FighterCondition.Modify);
+                NotifyArmy(FighterCondition.Modify);
             }
         }
         public int Health 
@@ -161,16 +175,9 @@ namespace TurnOrder
             }
         }
     }
-    class Army : IFighterObservable, IFighterObserver
+    class FighterObservable : IFighterObservable
     {
-        private PriorityQueue<Fighter, Fighter> _fightersOfRound = new();
-        public Dictionary<string, Fighter> Fighters { get; private set; } = [];
         private readonly List<IFighterObserver> _observers = [];
-        public Army()
-        {
-            _observers.Add(this);
-        }
-        public Fighter? CurrentFighter { get; private set; } = null;
         public void RegisterObserver(IFighterObserver observer)
         {
             if (observer != this)
@@ -185,6 +192,37 @@ namespace TurnOrder
         {
             foreach (var observer in _observers)
                 observer.UpdateFighter(fighter, condition);
+        }
+    }
+    class Army : IFighterObserver
+    {
+        private PriorityQueue<Fighter, Fighter> _fightersOfRound = new();
+        public Dictionary<string, Fighter> Fighters { get; private set; } = [];
+        public Fighter? CurrentFighter { get; private set; } = null;
+        public bool AddFighter(Fighter? fighter)
+        {
+            if (fighter == null)
+                return false;
+            
+            if (!Fighters.ContainsKey(fighter.Name))
+            {
+                fighter.Army = this;
+                return true;
+            }
+            return false;
+        }
+        public void NextTurn()
+        {
+            if (Fighters.Count == 0)
+                return;
+
+            if (_fightersOfRound.Count == 0)
+            {
+                foreach (var fighter in Fighters.Values)
+                    _fightersOfRound.Enqueue(fighter, fighter);
+            }
+
+            CurrentFighter = _fightersOfRound.Dequeue();
         }
         public void UpdateFighter(Fighter? fighter, FighterCondition condition)
         {
@@ -216,32 +254,6 @@ namespace TurnOrder
                 default:
                     break;
             }
-        }
-        public bool AddFighter(Fighter? fighter)
-        {
-            if (fighter == null)
-                return false;
-            
-            if (!Fighters.ContainsKey(fighter.Name))
-            {
-                fighter.Army = this;
-                NotifyObservers(fighter, FighterCondition.Add);
-                return true;
-            }
-            return false;
-        }
-        public void NextTurn()
-        {
-            if (Fighters.Count == 0)
-                return;
-
-            if (_fightersOfRound.Count == 0)
-            {
-                foreach (var fighter in Fighters.Values)
-                    _fightersOfRound.Enqueue(fighter, fighter);
-            }
-
-            CurrentFighter = _fightersOfRound.Dequeue();
         }
     }
 }
