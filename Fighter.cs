@@ -85,10 +85,8 @@ namespace TurnOrder
         public abstract int CompareTo(IFighter? other);
         public override string ToString() => Name;
     }
-    class Hero : Fighter
+    class Hero(string? name, int initiative, int health, int maxHealth) : Fighter(name, initiative, health, maxHealth)
     {
-        public Hero(string? name, int initiative, int health, int maxHealth) 
-            : base(name, initiative, health, maxHealth) { }
         public override bool IsDead { get => false; }
         public override int CompareTo(IFighter? other)
         {
@@ -103,10 +101,8 @@ namespace TurnOrder
             return Name.CompareTo(other.Name);
         }
     }
-    class Villain : Fighter
+    class Villain(string? name, int initiative, int health, int maxHealth) : Fighter(name, initiative, health, maxHealth)
     {
-        public Villain(string? name, int initiative, int health, int maxHealth)
-            : base(name, initiative, health, maxHealth) { }
         public override bool IsDead { get => Health == 0; }
         public override int CompareTo(IFighter? other)
         {
