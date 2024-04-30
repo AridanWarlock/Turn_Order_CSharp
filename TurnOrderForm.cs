@@ -41,7 +41,7 @@ namespace TurnOrder
             initText.Clear();
             healthText.Clear();
 
-            foreach (var fighter in army.Fighters)
+            foreach (var fighter in army.Fighters.Values.Order())
             {
                 nameText.Text += fighter.Name + Environment.NewLine;
                 initText.Text += fighter.Initiative + Environment.NewLine;
@@ -111,13 +111,12 @@ namespace TurnOrder
                     && int.TryParse(initChangeText.Text, out var init))
             {
                 fighter.Initiative = init;
-                Display();
             }
         }
         private void Delete_button_Click(object sender, EventArgs e)
         {
             if (deleteComboBox.SelectedItem is Fighter fighter)
-                fighter.RemoveNotifyArmy();
+                fighter.NotifyArmy(FighterCondition.Dead);
         }
         private void Damage_button_Click(object sender, EventArgs e)
         {
@@ -133,8 +132,6 @@ namespace TurnOrder
                 }
                 if (fighter == army.CurrentFighter)
                     concentraionText.Visible = fighter.Concentration;
-
-                Display();
             }
         }
         private void Conc_button_Click(object sender, EventArgs e)
@@ -145,15 +142,22 @@ namespace TurnOrder
                 concentraionText.Visible = army.CurrentFighter.Concentration;
             }
         }
+        public void UpdateFighter(Fighter? fighter, FighterCondition condition)
+        {
+            if (fighter == null)
+                return;
 
-        public void AddUpdateFighter(Fighter? fighter)
-        {
-            Relocate(27);
-            Display();
-        }
-        public void RemoveUpdateFighter(Fighter? fighter)
-        {
-            Relocate(-27);
+            switch (condition)
+            {
+                case FighterCondition.Add:
+                    Relocate(27);
+                    break;
+                case FighterCondition.Dead:
+                    Relocate(-27);
+                    break;
+                default:
+                    break;
+            }
             Display();
         }
     }

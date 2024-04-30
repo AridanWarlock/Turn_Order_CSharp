@@ -16,13 +16,9 @@ namespace TurnOrder
             MaxHealth = maxHealth;
             Health = health;
         }
-        public void AddNotifyArmy()
+        public void NotifyArmy(FighterCondition condition)
         {
-            Army?.AddNotifyObservers(this);
-        }
-        public void RemoveNotifyArmy()
-        {
-            Army?.RemoveNotifyObservers(this);
+            Army?.NotifyObservers(this, condition);
         }
         public string Name
         {
@@ -42,15 +38,22 @@ namespace TurnOrder
         public int Initiative
         {
             get => _initiative;
-            set => _initiative = value <= 40 ? value : 40;
+            set
+            {
+                _initiative = value <= 40 ? value : 40;
+                Army?.NotifyObservers(this, FighterCondition.Modify);
+            }
         }
         public int Health 
         {
             get => _health;
-            set => _health = 
-                value > _maxHealth ? _maxHealth
-                : value < 0 ? 0
-                : value;
+            set
+            {
+                _health =
+                   value > _maxHealth ? _maxHealth
+                    : value < 0 ? 0
+                    : value;
+            }
         }
         public int MaxHealth
         {
@@ -65,14 +68,12 @@ namespace TurnOrder
             if (Health == 0)
             {
                 Concentration = false;
-                RemoveNotifyArmy();
+                NotifyArmy(FighterCondition.Dead);
             }
+            else
+                NotifyArmy(FighterCondition.Modify);
         }
-        public bool IsKnocked
-        {
-            get => Health == 0;
-        }
-        public abstract bool IsDead { get; }
+        public virtual bool IsDead { get; }
         public override bool Equals(object? obj)
         {
             if (obj is Fighter fighter)
@@ -103,9 +104,9 @@ namespace TurnOrder
             Health -= damage;
 
             if (Health == 0)
-            {
                 Concentration = false;
-            }
+
+            NotifyArmy(FighterCondition.Modify);
         }
     }
     class Villain(string? name, int initiative, int health, int maxHealth) : Fighter(name, initiative, health, maxHealth)
@@ -124,37 +125,47 @@ namespace TurnOrder
             return Name.CompareTo(other.Name);
         }
     }
+    enum FighterCondition
+    {
+        Add,
+        Dead,
+        Modify,
+    }
     interface IFighterObserver
     {
-        void AddUpdateFighter(Fighter? fighter);
-        void RemoveUpdateFighter(Fighter? fighter);
+        void UpdateFighter(Fighter? fighter, FighterCondition condition);
     }
     interface IFighterObservable
     {
         void RegisterObserver(IFighterObserver observer);
         void RemoveObserver(IFighterObserver observer);
-        void AddNotifyObservers(Fighter? fighter);
-        void RemoveNotifyObservers(Fighter? fighter);
+        void NotifyObservers(Fighter? fighter, FighterCondition condition);
     }
     class ObserverComboBox : ComboBox, IFighterObserver
     {
-        public void AddUpdateFighter(Fighter? fighter)
+        public void UpdateFighter(Fighter? fighter, FighterCondition condition)
         {
-            if (fighter is not null && !Items.Contains(fighter))
-                Items.Add(fighter);
-        }
-        public void RemoveUpdateFighter(Fighter? fighter)
-        {
-            if (fighter is not null)
-                Items.Remove(fighter);
+            if (fighter is null)
+                return;
+
+            switch (condition)
+            {
+                case FighterCondition.Add:
+                    Items.Add(fighter);
+                    break;
+                case FighterCondition.Dead:
+                    Items.Remove(fighter);
+                    break;
+                default:
+                    break;
+            }
         }
     }
     class Army : IFighterObservable, IFighterObserver
     {
-        private readonly LinkedList<Fighter> _fightersOfRound = [];
-        public SortedSet<Fighter> Fighters { get; private set; } = [];
+        private PriorityQueue<Fighter, Fighter> _fightersOfRound = new();
+        public Dictionary<string, Fighter> Fighters { get; private set; } = [];
         private readonly List<IFighterObserver> _observers = [];
-        private readonly List<TextBox> _textBox = [];
         public Army()
         {
             _observers.Add(this);
@@ -170,31 +181,40 @@ namespace TurnOrder
             if (observer != this)
                 _observers.Remove(observer);
         }
-        public void AddNotifyObservers(Fighter? fighter)
+        public void NotifyObservers(Fighter? fighter, FighterCondition condition)
         {
             foreach (var observer in _observers)
-                observer.AddUpdateFighter(fighter);
+                observer.UpdateFighter(fighter, condition);
         }
-        public void RemoveNotifyObservers(Fighter? fighter)
-        {
-            foreach (var observer in _observers)
-                observer.RemoveUpdateFighter(fighter);
-        }
-        public void AddUpdateFighter(Fighter? fighter)
+        public void UpdateFighter(Fighter? fighter, FighterCondition condition)
         {
             if (fighter is null)
                 return;
 
-            Fighters.Add(fighter);
-        }
-        public void RemoveUpdateFighter(Fighter? fighter)
-        {
-            if (fighter is not null && Fighters.Remove(fighter))
+            switch (condition)
             {
-                _fightersOfRound.Remove(fighter);
+                case FighterCondition.Add:
+                    Fighters.Add(fighter.Name, fighter);
+                    break;
+                case FighterCondition.Dead:
+                    if (Fighters.Remove(fighter.Name))
+                    {
+                        var queue = new PriorityQueue<Fighter, Fighter>();
+                        while (_fightersOfRound.Count > 0)
+                        {
+                            Fighter f = _fightersOfRound.Dequeue();
+                            if (f != fighter)
+                                queue.Enqueue(f, f);
+                        }
+                        
+                        _fightersOfRound = queue;
 
-                if (fighter == CurrentFighter)
-                NextTurn();
+                        if (fighter == CurrentFighter)
+                            NextTurn();
+                    }
+                    break;
+                default:
+                    break;
             }
         }
         public bool AddFighter(Fighter? fighter)
@@ -202,10 +222,10 @@ namespace TurnOrder
             if (fighter == null)
                 return false;
             
-            if (!Fighters.Contains(fighter))
+            if (!Fighters.ContainsKey(fighter.Name))
             {
                 fighter.Army = this;
-                AddNotifyObservers(fighter);
+                NotifyObservers(fighter, FighterCondition.Add);
                 return true;
             }
             return false;
@@ -217,20 +237,11 @@ namespace TurnOrder
 
             if (_fightersOfRound.Count == 0)
             {
-                foreach (var fighter in Fighters)
-                    _fightersOfRound.AddFirst(fighter);
+                foreach (var fighter in Fighters.Values)
+                    _fightersOfRound.Enqueue(fighter, fighter);
             }
 
-            CurrentFighter = _fightersOfRound.Last?.Value;
-            _fightersOfRound.RemoveLast();
-        }
-        public void RegisterTextBox(TextBox textBox)
-        {
-            _textBox.Add(textBox);
-        }
-        public void RemoveTextBox(TextBox textBox)
-        {
-            _textBox.Remove(textBox);
+            CurrentFighter = _fightersOfRound.Dequeue();
         }
     }
 }
